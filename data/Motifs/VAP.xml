@@ -1,0 +1,18 @@
+<tool id="VAP" name="VAP" version="0.0.1">
+    <description> Variant Antigen Profiler - the VAP.</description>
+
+    <command interpreter="python">
+        Vap.py $xname -$T $forward $reverse
+    </command>
+
+    <inputs>
+        <param name="xname" size = "30" type="text" value = "Test" label="Prefix Name" />
+        <param name="forward" type="data" label="Forward NGS Read File"/>
+        <param name="reverse" type="data" label="Reverse NGS Read File"/>
+        <param name="T" type="boolean" truevalue='T' falsevalue='' label="Transcriptomic?"/>
+    </inputs>
+
+    <outputs>
+        <data format="html" name="output" label="VAP_Results"/>
+    </outputs>
+</tool>

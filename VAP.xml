@@ -1,0 +1,125 @@
+<tool id="VAP" name="VAPPER" version="1.0.0">
+    <description>is a Variant Antigen Profiler that accurately quantifies the variant antigen diversity or presence in a Trypanosoma congolense or T.vivax isolate</description>
+	<requirements>
+        <requirement type="package" version="1.2.10">velvet</requirement>
+        <requirement type="package" version="3.1b2">HMMER</requirement>
+        <requirement type="package" version="2.2.6">bowtie2</requirement>
+        <requirement type="package" version="1.6">samtools</requirement>
+        <requirement type="package" version="2.2.1">cufflinks</requirement>
+        <requirement type="package" version="2.7.1">blast</requirement>
+		<requirement type="package" version="6.6.0.0">EMBOSS</requirement>
+		<requirement type="package" version="0.8.0">seaborn</requirement>
+	</requirements>
+
+
+    <command interpreter="python" detect_errors="exit_code">
+        #if $TrypType.species == "Trypanosoma congolense":
+            #if $TrypType.GT.analysis == "Genomic":
+                #if $TrypType.GT.contigs.preassem == "Contig available":
+                    <!-- name:2, pdfexport:3, contigs:4, html_file:5, html_resource:6 -->
+                    Vap.py g_contigs $xname $P $TrypType.GT.contigs.contig $html_file $html_file.extra_files_path
+                #else
+                    <!-- name = 2, pdfexport = 3, kmers = 4, inslen = 5, covcut = 6, forward = 7, reverse = 8, html_file = 9, html_resource = 10 -->
+                    Vap.py g_assemble $xname $P $TrypType.GT.contigs.kmers $TrypType.GT.contigs.inslen $TrypType.GT.contigs.covcut $TrypType.GT.contigs.forward $TrypType.GT.contigs.reverse $html_file $html_file.extra_files_path
+                #end if
+            #else
+                <!-- name:2, pdfexport:3, strain:4, forward:5, reverse:6, html_file:7, html_resource:8 -->
+                Vap.py transcipt $xname $P $TrypType.GT.strain $TrypType.GT.forward $TrypType.GT.reverse $html_file $html_file.extra_files_path
+            #end if
+        #else
+            #if $TrypType.contigs.preassem == "Contig available":
+                    <!-- name:2, pdfexport:3, contigs:4, html_file:5, html_resource:6 -->
+                Vap.py v_contigs $xname $P $TrypType.contigs.contig $html_file $html_file.extra_files_path
+            #else
+                    <!-- name = 2, pdfexport = 3, kmers = 4, inslen = 5, covcut = 6, forward = 7, reverse = 8, html_file = 9, html_resource = 10 -->
+                Vap.py v_assemble $xname $P $TrypType.contigs.kmers $TrypType.contigs.inslen 0 $TrypType.contigs.forward $TrypType.contigs.reverse $html_file $html_file.extra_files_path
+            #end if
+        #end if
+
+    </command>
+
+    <inputs>
+        <param name="xname" size = "30" type="text" value = "Test" label="Prefix Name" />
+        <conditional name = "TrypType">
+            <param name = "species" type = 'select' label="Select Species">
+                <option value = "Trypanosoma congolense" selected="true"></option>
+                <option value = "Trypanosoma vivax"></option>
+            </param>
+            <when value = "Trypanosoma congolense">
+                <conditional name = "GT">
+                    <param name="analysis" type = "select" label = "Genomic or Transcriptomic Analysis?">
+                        <option value = "Genomic" selected = "true"></option>
+                        <option value = "Transcriptomic"></option>
+                    </param>
+                    <when value = "Genomic">
+                        <conditional name = "contigs">
+                            <param name = "preassem" type = "select" label = "Contig file available?">
+                                <option value = "Full assembly" selected = "true"></option>
+                                <option value = "Contig available"></option>
+                            </param>
+                            <when value = "Full assembly">
+                                <param name = "kmers" type="integer" value="65" min="31" max="99" label = "Specify kmers"></param>
+                                <param name = "inslen" type="integer" value="400" min="1" max="999" label = "Insert length"></param>
+                                <param name = "covcut" type="integer" value="5" min="1" max="999" label = "Coverage cut off"></param>
+                                <param name="forward" type="data" format="fastq" label="Forward NGS Read File"/>
+                                <param name="reverse" type="data" format="fastq" label="Reverse NGS Read File"/>
+                            </when>
+                            <when value = "Contig available">
+                                <param name="contig" type="data" format="fasta" label="Contig file"/>
+                            </when>
+                        </conditional>
+                    </when>
+                    <when value = "Transcriptomic">
+                        <param name = "strain" type="select" label = "Select Reference Strain">
+                            <option value = "Tc148"></option>
+                            <option value = "IL3000"></option>
+                        </param>
+                        <param name="forward" type="data" format="fastq" label="Forward NGS Read File"/>
+                        <param name="reverse" type="data" format="fastq" label="Reverse NGS Read File"/>
+                     </when>
+                </conditional>
+            </when>
+            <when value="Trypanosoma vivax">
+                <conditional name = "contigs">
+                    <param name = "preassem" type = "select" label = "Contig file available?">
+                        <option value = "Full assembly" selected = "true"></option>
+                        <option value = "Contig available"></option>
+                    </param>
+                    <when value = "Full assembly">
+                        <param name = "kmers" type="integer" value="65" min="31" max="99" label = "Specify kmers"></param>
+                        <param name = "inslen" type="integer" value="400" min="1" max="999" label = "Insert length"></param>
+                        <param name="forward" type="data" format="fastq" label="Forward NGS Read File"/>
+                        <param name="reverse" type="data" format="fastq" label="Reverse NGS Read File"/>
+                    </when>
+                    <when value = "Contig available">
+                        <param name="contig" type="data" format="fasta" label="Contig file"/>
+                    </when>
+                </conditional>
+            </when>
+        </conditional>
+
+        <param name="P" type="boolean" truevalue='PDF_Yes' falsevalue='PDF_No' label="Export PDF of figures" />
+    </inputs>
+
+    <outputs>
+        <data format="html" name = "html_file" label = "${xname.value}_html"/>
+    </outputs>
+    <tests>
+		<test>
+			<param name = "xname" value = "Test"/>
+			<conditional name = "TrypType">
+				<param name = "species" value = "Trypanosoma congolense"/>
+			</conditional>
+			<conditional name = "GT">
+				<param name = "analysis" value = "Genomic"/>
+			</conditional>
+			<conditional name = "contigs">
+				<param name = "preassem" value = "Contig available"/>
+				<param name="contig" value = "Test.fa"/>
+			</conditional>
+			<param name = "P" value = 'PDF_No'/>
+			<output name = "html_file" file = 'Test_html' ftype = 'html'/>
+		</test>
+	</tests>
+</tool>
+
