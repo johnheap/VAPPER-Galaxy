@@ -89,7 +89,7 @@ def convertToFasta(inputName, strain):  #equivalent to Sara's awk scripte
     if strain == "Tc148":
         refName = dir_path + "/data/Reference/148_prot.fasta"
     if strain == "IL3000":
-        refName = dir_path + "data/Reference/IL3000_prot.fasta"
+        refName = dir_path + "/data/Reference/IL3000_prot.fasta"
 
     cuff_df = pd.read_csv(inputName+".cuff/genes.fpkm_tracking", sep='\t')
     cuff_df = cuff_df[(cuff_df['FPKM'] > 0)]
@@ -124,6 +124,8 @@ def convertToFasta(inputName, strain):  #equivalent to Sara's awk scripte
                         while line[0] != '>':
                             outfile.write(line)
                             line=ref.readline()
+                            if not line:
+                                break;
                 else:
                     line = ref.readline()
             else:
