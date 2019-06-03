@@ -28,6 +28,7 @@ import sys
 import Tryp_G
 import Tryp_T
 import Tryp_V
+import Tryp_V_T
 import argparse
 #Entry .sort out the arguments
 
@@ -70,22 +71,10 @@ if arguments[1] == 'v_assemble':
 if arguments[1] == 'v_contigs':
     argdict = {'name':2, 'pdfexport':3, 'contigs':4, 'html_file':5, 'html_resource':6}
     Tryp_V.vivax_contigs(arguments,argdict)
+if arguments[1] == 'v_transcript':
+    argdict = {'name':2, 'pdfexport': 3, 'refFastq': 4, 'forward': 5, 'reverse': 6, 'html_file': 7, 'html_resource': 8}
+    Tryp_V_T.transcriptomicProcess(arguments,argdict)
 
 
 sys.exit()
-
-
-
-#if not os.path.exists(args.htmlresource):
-#    os.mkdir(args.htmlresource)
-#if args.p:
-#    pdfExport = True
-#if args.t:
-#    print ("Transcriptomic Pathway")
-#    Tryp_T.transcriptomicProcess(args.name, pdfExport, args.strain, args.Forward_Read_File, args.Reverse_Read_File, args.htmlfile, args.htmlresource)
-#else:
-    #print ('Genomic Pathway')
-    #Tryp_G.test_output(args.name, args.htmlfile, args.htmlresource, args.heatmapFile, args.PCAFile,args.devheatmapFile)
-#    Tryp_G.genomicProcess(args.name, pdfExport, args.Forward_Read_File, args.Reverse_Read_File, args.htmlfile, args.htmlresource)
-
 

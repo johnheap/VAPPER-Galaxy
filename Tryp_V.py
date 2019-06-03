@@ -56,7 +56,7 @@ def blastContigs(test_name,database):
     #db_path = os.path.dirname(os.path.realpath(__file__))+database
     db_path = database
     argString = "blastn -db "+db_path+" -query "+test_name+".fa -outfmt 10 -out "+test_name+"_blast.txt"
-    print (argString)
+    print(argString)
     returncode = subprocess.call(argString, shell = True)
     if returncode != 0:
         return "Error in blastall"
@@ -175,7 +175,7 @@ def createClusterMap(tv_df,name,html_path,pdfExport):
             "across the sample cohort. \nDendrogram reflects the relationships amongst the VSG" \
             " repertoires of each strain. " \
             "Strains were isolated \nfrom multiple African countries as shown in the key.\nData was produced with the " \
-            "'Variant Antigen Profiler' (Silva Pereira and Jackson, 2018)."
+            "'Variant Antigen Profiler' (Silva Pereira et al., 2019)."
 
     ax.text(-1.5, len(tv_df) + 8,
             title,
@@ -283,42 +283,9 @@ def vivax_contigs(args,dict):
     createClusterMap(current_df, args[dict['name']], args[dict['html_resource']], args[dict['pdfexport']])
     createHTML(args[dict['name']],args[dict['html_file']],args[dict['html_resource']])
 
+
 if __name__ == "__main__":
-    #assembleWithVelvet("V2_Test",'65','400', '5',"data/TviBrRp.1.clean","data/TviBrRp.2.clean")
-    #assembleWithVelvet("V2_Test",'65','400', '5',"data/Tv493.1","data/Tv493.2")
-    #blastResult_df=blastContigs("V2_Test",r"/Database/COGs.fas")
-    cogPresence_df = pd.read_csv("test_cogspresent.csv")
-    print(cogPresence_df)
-    current_df = addToCurrentData(cogPresence_df,"vTest")  # load in Tvdatabase and add cogPresence column to it.
-    createClusterMap(current_df, "vTest", "sausages","no")
-    createHTML("vTest","vTest.html","sausages")
     sys.exit()
-
-    blastResult_df=blastContigs("Tv493",r"/Database/COGs.fas")
-    orthPresence_df = getCogsPresent(blastResult_df,"Tv493",r"/Database/COGlist.txt")
-
-    #binBlastResult_df=blastContigs("V2_Test",r"/Database/Bin_2.fas")
-
-    binBlastResult_df=blastContigs("Tv493",r"/Database/Bin_2.fas")
-    binPresence_df = getCogsPresent(binBlastResult_df,"Tv493",r"/Database/binlist.txt")
-    cogPresence_df = orthPresence_df.append(binPresence_df, ignore_index=True)
-    #now do the next bit?
-    current_df = addToCurrentData(cogPresence_df)  # load in Tvdatabase and add cogPresence column to it.
-    createClusterMap(current_df,'Test',dict['html_resource'] ,dict['pdfexport'])
-
-
-    #print(cogPresence_df)
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    fname = dir_path+r"/results/V2_TestPresence.csv"
-    #fnameb = dir_path+r"/results/V2_Test_blastOrth.csv"
-    #fnameb_bin = dir_path+r"/results/V2_Test_blastBin.csv"
-    #binBlastResult_df.to_csv(fnameb_bin)
-    #blastResult_df.to_csv(fnameb)
-
-    #cogPresence_df.to_csv(fname)
-    cogPresence_df = pd.read_csv(fname)
-
-    current_df = addToCurrentData(cogPresence_df)       #load in Tvdatabase and add cogPresence column to it.
 
 
 

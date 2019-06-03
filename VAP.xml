@@ -1,4 +1,4 @@
-<tool id="VAP" name="VAPPER" version="1.0.0">
+<tool id="VAP" name="VAPPER" version="1.1.0">
     <description>is a Variant Antigen Profiler that accurately quantifies the variant antigen diversity or presence in a Trypanosoma congolense or T.vivax isolate</description>
 	<requirements>
         <requirement type="package" version="1.2.10">velvet</requirement>
@@ -27,13 +27,17 @@
                 Vap.py transcipt $xname $P $TrypType.GT.strain $TrypType.GT.forward $TrypType.GT.reverse $html_file $html_file.extra_files_path
             #end if
         #else
-            #if $TrypType.contigs.preassem == "Contig available":
-                    <!-- name:2, pdfexport:3, contigs:4, html_file:5, html_resource:6 -->
-                Vap.py v_contigs $xname $P $TrypType.contigs.contig $html_file $html_file.extra_files_path
-            #else
+			#if $TrypType.GT.analysis == "Transcriptomic":
+				Vap.py v_transcript $xname $P $TrypType.GT.vtreference $TrypType.GT.forward $TrypType.GT.reverse $html_file $html_file.extra_files_path
+			#else
+				#if $TrypType.contigs.preassem == "Contig available":
+						<!-- name:2, pdfexport:3, contigs:4, html_file:5, html_resource:6 -->
+					Vap.py v_contigs $xname $P $TrypType.contigs.contig $html_file $html_file.extra_files_path
+				#else
                     <!-- name = 2, pdfexport = 3, kmers = 4, inslen = 5, covcut = 6, forward = 7, reverse = 8, html_file = 9, html_resource = 10 -->
-                Vap.py v_assemble $xname $P $TrypType.contigs.kmers $TrypType.contigs.inslen 0 $TrypType.contigs.forward $TrypType.contigs.reverse $html_file $html_file.extra_files_path
-            #end if
+					Vap.py v_assemble $xname $P $TrypType.contigs.kmers $TrypType.contigs.inslen 0 $TrypType.contigs.forward $TrypType.contigs.reverse $html_file $html_file.extra_files_path
+				#end if
+			#end if	
         #end if
 
     </command>
@@ -80,22 +84,35 @@
                 </conditional>
             </when>
             <when value="Trypanosoma vivax">
-                <conditional name = "contigs">
-                    <param name = "preassem" type = "select" label = "Contig file available?">
-                        <option value = "Full assembly" selected = "true"></option>
-                        <option value = "Contig available"></option>
+                <conditional name = "GT">
+                    <param name="analysis" type = "select" label = "Genomic or Transcriptomic Analysis?">
+                        <option value = "Genomic" selected = "true"></option>
+                        <option value = "Transcriptomic"></option>
                     </param>
-                    <when value = "Full assembly">
-                        <param name = "kmers" type="integer" value="65" min="31" max="99" label = "Specify kmers"></param>
-                        <param name = "inslen" type="integer" value="400" min="1" max="999" label = "Insert length"></param>
+                    <when value = "Genomic">
+						<conditional name = "contigs">
+							<param name = "preassem" type = "select" label = "Contig file available?">
+								<option value = "Full assembly" selected = "true"></option>
+								<option value = "Contig available"></option>
+							</param>
+							<when value = "Full assembly">
+								<param name = "kmers" type="integer" value="65" min="31" max="99" label = "Specify kmers"></param>
+								<param name = "inslen" type="integer" value="400" min="1" max="999" label = "Insert length"></param>
+								<param name="forward" type="data" format="fastq" label="Forward NGS Read File"/>
+								<param name="reverse" type="data" format="fastq" label="Reverse NGS Read File"/>
+							</when>
+							<when value = "Contig available">
+								<param name="contig" type="data" format="fasta" label="Contig file"/>
+							</when>
+						</conditional>
+					</when>	
+                    <when value = "Transcriptomic">
+                        <param name = "vtreference" type="data" format="fasta" label = "Reference File"/>
                         <param name="forward" type="data" format="fastq" label="Forward NGS Read File"/>
                         <param name="reverse" type="data" format="fastq" label="Reverse NGS Read File"/>
-                    </when>
-                    <when value = "Contig available">
-                        <param name="contig" type="data" format="fasta" label="Contig file"/>
-                    </when>
-                </conditional>
-            </when>
+                     </when>
+  				</conditional>
+			</when>	
         </conditional>
 
         <param name="P" type="boolean" truevalue='PDF_Yes' falsevalue='PDF_No' label="Export PDF of figures" />
