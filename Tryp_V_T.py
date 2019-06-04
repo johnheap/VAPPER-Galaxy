@@ -120,7 +120,10 @@ def transcriptsForBlast(name, refFastq):
 
 def blastContigs(test_name,html_resource, database):
     db_path = database
-    argString = "blastx -db "+db_path+" -query "+test_name+"_for_blast.fa -outfmt 10 -out "+test_name+"_blast.txt"
+    #argString = "makeblastdb - in " + db_path
+    #subprocess.call(argString, shell=True)
+
+    argString = "blastx -db " + db_path + " -query "+test_name+"_for_blast.fa -outfmt 10 -out "+test_name+"_blast.txt"
     print(argString)
     returncode = subprocess.call(argString, shell=True)
     if returncode != 0:
@@ -224,7 +227,7 @@ def createHTML(tdict,sum_df):
     imgString = r"<img src = '"+ tdict['name']+"_phylotypes.png' alt='Bar chart of phylotype variation' style='max-width:100%'><br><br>"
     htmlString += imgString
 
-    with open(tdict['html_file'], "w") as htmlfile:
+    with open(tdict['html_resource']+'/'+tdict['html_file'], "w") as htmlfile:
         htmlfile.write(htmlString)
 
 
@@ -236,7 +239,7 @@ def getPhyloNumber(sac):
 def combineFPMK(tdict):
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
 
-    fpkm_df = pd.read_csv(dir_path++tdict['name']+'.cuff/genes.fpkm_tracking', sep='\t')
+    fpkm_df = pd.read_csv(dir_path+tdict['name']+'.cuff/genes.fpkm_tracking', sep='\t')
 
     #fpkm_df = pd.read_csv('genes.fpkm_tracking',sep='\t')
     #print(fpkm_df.head())
@@ -392,9 +395,9 @@ def doBarChart(tdict, sum2_df):
     plt.subplots_adjust(bottom=0.1, top=0.9, left=0.15, right=0.9)
     ax.set_title(title, x=0, wrap='True',ha='left',)
 
-    plt.savefig(tdict['html_resource'] + tdict['name']+"_phylotypes.png")
+    plt.savefig(tdict['html_resource'] + '/' + tdict['name']+"_phylotypes.png")
     if tdict['pdf'] == 'PDF_Yes':
-        plt.savefig(tdict['html_resource'] + tdict['name']+"phylotypes.pdf")
+        plt.savefig(tdict['html_resource'] + '/' + tdict['name']+"phylotypes.pdf")
     # plt.show()
     pass
 
