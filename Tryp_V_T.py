@@ -83,7 +83,7 @@ def processSamFiles(inputname):
 # we will not have the .gtf file so call cufflinks without -G option
 def transcriptAbundance(inputname):
     argString = "cufflinks -o "+inputname+".cuff -u -p 8 "+inputname+".sorted"
-    subprocess.call(argString, shell = True)
+    subprocess.call(argString, shell=True)
     os.remove(inputname+".sorted")  #remove name.sorted
     os.remove(inputname+".sorted.bai")
     os.remove(inputname+".bam")
@@ -96,7 +96,7 @@ def transcriptsForBlast(name, refFastq):
     dir_path = os.path.dirname(os.path.realpath(__file__))  # directory of this file
     refPath = dir_path + "/data/Reference/" + ref + "/" + refBase   # eg refPath = data/Reference/Trinity/Trinity.fasta
     # used for dirty # refPath = 'Trinity.fasta' # dirty one
-    track_df = pd.read_csv(name+'.cuff/genes.fpkm_tracking', sep='\t')
+    track_df = pd.read_csv(dir_path+'/' + name + '.cuff/genes.fpkm_tracking', sep='\t')
     names = track_df['locus']
     # print(len(names))
     # print(names[:5])
@@ -234,13 +234,16 @@ def getPhyloNumber(sac):
     return int(sac[1:i])
 
 def combineFPMK(tdict):
-    fpkm_df = pd.read_csv(tdict['name']+'.cuff/genes.fpkm_tracking', sep='\t')
+    dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
+
+    fpkm_df = pd.read_csv(dir_path++tdict['name']+'.cuff/genes.fpkm_tracking', sep='\t')
 
     #fpkm_df = pd.read_csv('genes.fpkm_tracking',sep='\t')
     #print(fpkm_df.head())
     fpkm_df['locus'] = fpkm_df['locus'].apply(lambda names: names[:names.find(':')])
     #print(fpkm_df.head())
-    reducedBlast_df = pd.read_csv(tdict['name']+'_transcript.csv')
+
+    reducedBlast_df = pd.read_csv(dir_path + tdict['name']+'_transcript.csv')
     # reducedBlast_df = pd.read_csv('TrinityVT_transcript.csv')
     saccverSet = set(reducedBlast_df['saccver'])
     saccverList = list(saccverSet)
@@ -398,12 +401,14 @@ def doBarChart(tdict, sum2_df):
 # argdict = {'name':2, 'pdfexport': 3, 'refFastq': 4, 'forward': 5, 'reverse': 6, 'html_file': 7, 'html_resource': 8}
 
 def transcriptomicProcess(args,argdict):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
     tdict = {}
     tdict['name'] = args[argdict['name']]
     tdict['refFastq'] = args[argdict['refFastq']]
     tdict['forward'] = args[argdict['forward']]
     tdict['reverse'] = args[argdict['reverse']]
-    tdict['vivax_trans_database'] = 'data/vivax/Database/Phylotype_typeseqs.fas'
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    tdict['vivax_trans_database'] = dir_path+'/data/vivax/Database/Phylotype_typeseqs.fas'
     tdict['pdf'] = args[argdict['pdfexport']]
     tdict['html_file'] = args[argdict['html_file']]
     tdict['html_resource'] = args[argdict['html_resource']]
@@ -413,7 +418,7 @@ def transcriptomicProcess(args,argdict):
     processSamFiles(tdict['name'])                              #uses samtools
     transcriptAbundance(tdict['name'])                          #uses cufflinks -> ?.cuff/*.*
     transcriptsForBlast(tdict['name'], tdict['refFastq'])       #creates name+4blast.fa
-    blastContigs(tdict['name'], tdict['html_resource'], 'data/vivax/Database/Phylotype_typeseqs.fas')
+    blastContigs(tdict['name'], tdict['html_resource'], tdict['vivax_trans_database'])
     sum_df, sum2_df = combineFPMK(tdict)
     doBarChart(tdict, sum2_df)
     createHTML(tdict, sum_df)
